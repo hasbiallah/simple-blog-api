@@ -12,9 +12,22 @@ class IArticleRepository {
   }
 
   /**
+   * @param {object} params
+   * @param {number} params.limit
+   * @param {number} params.offset
+   * @param {string} [params.status]
    * @returns {Promise<import('../entities/Article')[]>}
    */
-  async findAll() {
+  async findAll({ limit, offset, status }) {
+    throw new Error('METHOD_NOT_IMPLEMENTED');
+  }
+
+  /**
+   * @param {object} params
+   * @param {string} [params.status]
+   * @returns {Promise<number>}
+   */
+  async countAll({ status }) {
     throw new Error('METHOD_NOT_IMPLEMENTED');
   }
 
