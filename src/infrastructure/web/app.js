@@ -1,5 +1,7 @@
 const express = require('express');
 const cors = require('cors');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./swagger');
 const { pool } = require('../database/mysql_connection');
 
 // Infrastructure
@@ -69,6 +71,7 @@ const createApp = () => {
   const articleController = new ArticleController(articleUseCases);
 
   // Routes
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
   app.use('/api/auth', createAuthRoutes(authController));
   app.use('/api/articles', createArticleRoutes(articleController, commentController));
   app.use('/api/comments', createCommentRoutes(commentController));
