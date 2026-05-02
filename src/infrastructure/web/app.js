@@ -8,16 +8,25 @@ const TokenManager = require('../security/TokenManager');
 
 // Repositories
 const UserRepositoryMySQL = require('../../adapters/repositories/UserRepositoryMySQL');
+const ArticleRepositoryMySQL = require('../../adapters/repositories/ArticleRepositoryMySQL');
+const CommentRepositoryMySQL = require('../../adapters/repositories/CommentRepositoryMySQL');
 
 // Use Cases
 const RegisterUser = require('../../use_cases/auth/RegisterUser');
 const LoginUser = require('../../use_cases/auth/LoginUser');
+const CreateArticle = require('../../use_cases/article/CreateArticle');
+const GetArticles = require('../../use_cases/article/GetArticles');
+const GetArticleDetail = require('../../use_cases/article/GetArticleDetail');
+const UpdateArticle = require('../../use_cases/article/UpdateArticle');
+const DeleteArticle = require('../../use_cases/article/DeleteArticle');
 
 // Controllers
 const AuthController = require('../../adapters/controllers/AuthController');
+const ArticleController = require('../../adapters/controllers/ArticleController');
 
 // Routes
 const createAuthRoutes = require('./routes/authRoutes');
+const createArticleRoutes = require('./routes/articleRoutes');
 
 const createApp = () => {
   const app = express();
@@ -28,16 +37,30 @@ const createApp = () => {
 
   // Dependency Injection
   const userRepository = new UserRepositoryMySQL(pool);
+  const articleRepository = new ArticleRepositoryMySQL(pool);
+  const commentRepository = new CommentRepositoryMySQL(pool);
+  
   const passwordHasher = new PasswordHasher();
   const tokenManager = new TokenManager();
 
+  // Auth
   const registerUser = new RegisterUser(userRepository, passwordHasher);
   const loginUser = new LoginUser(userRepository, passwordHasher, tokenManager);
-
   const authController = new AuthController(registerUser, loginUser);
+
+  // Article
+  const articleUseCases = {
+    createArticle: new CreateArticle(articleRepository),
+    getArticles: new GetArticles(articleRepository),
+    getArticleDetail: new GetArticleDetail(articleRepository, commentRepository, userRepository),
+    updateArticle: new UpdateArticle(articleRepository),
+    deleteArticle: new DeleteArticle(articleRepository)
+  };
+  const articleController = new ArticleController(articleUseCases);
 
   // Routes
   app.use('/api/auth', createAuthRoutes(authController));
+  app.use('/api/articles', createArticleRoutes(articleController));
 
   // Root route
   app.get('/', (req, res) => {
