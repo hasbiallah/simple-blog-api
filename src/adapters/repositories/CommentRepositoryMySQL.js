@@ -7,6 +7,17 @@ class CommentRepositoryMySQL extends ICommentRepository {
     this.pool = pool;
   }
 
+  async findById(id) {
+    const query = 'SELECT * FROM comments WHERE id = ?';
+    const [rows] = await this.pool.execute(query, [id]);
+    
+    if (rows.length === 0) {
+      return null;
+    }
+
+    return new Comment(rows[0]);
+  }
+
   async save(comment) {
     const { article_id, user_id, content, created_at } = comment;
     const query = 'INSERT INTO comments (article_id, user_id, content, created_at) VALUES (?, ?, ?, ?)';

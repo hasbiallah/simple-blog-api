@@ -20,13 +20,18 @@ const GetArticleDetail = require('../../use_cases/article/GetArticleDetail');
 const UpdateArticle = require('../../use_cases/article/UpdateArticle');
 const DeleteArticle = require('../../use_cases/article/DeleteArticle');
 
+const CreateComment = require('../../use_cases/comment/CreateComment');
+const DeleteComment = require('../../use_cases/comment/DeleteComment');
+
 // Controllers
 const AuthController = require('../../adapters/controllers/AuthController');
 const ArticleController = require('../../adapters/controllers/ArticleController');
+const CommentController = require('../../adapters/controllers/CommentController');
 
 // Routes
 const createAuthRoutes = require('./routes/authRoutes');
 const createArticleRoutes = require('./routes/articleRoutes');
+const createCommentRoutes = require('./routes/commentRoutes');
 
 const createApp = () => {
   const app = express();
@@ -48,6 +53,11 @@ const createApp = () => {
   const loginUser = new LoginUser(userRepository, passwordHasher, tokenManager);
   const authController = new AuthController(registerUser, loginUser);
 
+  // Comment
+  const createComment = new CreateComment(commentRepository, articleRepository);
+  const deleteComment = new DeleteComment(commentRepository);
+  const commentController = new CommentController(createComment, deleteComment);
+
   // Article
   const articleUseCases = {
     createArticle: new CreateArticle(articleRepository),
@@ -60,7 +70,8 @@ const createApp = () => {
 
   // Routes
   app.use('/api/auth', createAuthRoutes(authController));
-  app.use('/api/articles', createArticleRoutes(articleController));
+  app.use('/api/articles', createArticleRoutes(articleController, commentController));
+  app.use('/api/comments', createCommentRoutes(commentController));
 
   // Root route
   app.get('/', (req, res) => {
