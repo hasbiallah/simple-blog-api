@@ -4,6 +4,14 @@
  */
 class ICommentRepository {
   /**
+   * @param {string|number} id
+   * @returns {Promise<import('../entities/Comment')|null>}
+   */
+  async findById(id) {
+    throw new Error('METHOD_NOT_IMPLEMENTED');
+  }
+
+  /**
    * @param {import('../entities/Comment')} comment
    * @returns {Promise<import('../entities/Comment')>}
    */

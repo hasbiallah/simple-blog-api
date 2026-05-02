@@ -1,7 +1,7 @@
 const express = require('express');
 const authMiddleware = require('../middlewares/authMiddleware');
 
-const createArticleRoutes = (articleController) => {
+const createArticleRoutes = (articleController, commentController) => {
   const router = express.Router();
 
   router.get('/', (req, res) => articleController.getAll(req, res));
@@ -11,6 +11,9 @@ const createArticleRoutes = (articleController) => {
   router.post('/', authMiddleware, (req, res) => articleController.create(req, res));
   router.put('/:id', authMiddleware, (req, res) => articleController.update(req, res));
   router.delete('/:id', authMiddleware, (req, res) => articleController.delete(req, res));
+
+  // Comments
+  router.post('/:id/comments', authMiddleware, (req, res) => commentController.create(req, res));
 
   return router;
 };
